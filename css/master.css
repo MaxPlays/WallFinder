@@ -1,0 +1,8 @@
+#register-loading, #login-loading{
+  text-align: center;
+  display: none;
+}
+
+svg path,svg rect{
+  fill: white;
+}
