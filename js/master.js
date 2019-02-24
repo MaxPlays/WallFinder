@@ -29,3 +29,9 @@ function validateUser(user){
   var re = /^[A-Za-z0-9]+$/;
   return re.test(String(user).toLowerCase());
 }
+
+$("#nav-submit").click(function(){
+  if($("#toggle").is(":visible")){
+    $("#toggle").trigger("click");
+  }
+});

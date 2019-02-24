@@ -9,35 +9,16 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=p
 
 mymap.locate({setView: true});
 
-function onLocationFound(e) {
+/*function onLocationFound(e) {
     var radius = e.accuracy / 2;
 
     L.marker(e.latlng).addTo(mymap).bindPopup("Your location");
 }
 
-mymap.on('locationfound', onLocationFound);
+mymap.on('locationfound', onLocationFound);*/
 
 function onLocationError(e) {
     alert(e.message);
 }
 
 mymap.on('locationerror', onLocationError);
-
-$(window).on("resize", function () { $("#map").height($(window).height() - $("#nav").height() - 16); mymap.invalidateSize(); }).trigger("resize");
-
-var marker;
-
-mymap.on("click", function(e){
-    if(marker != null)
-      marker.remove();
-    marker = L.marker(e.latlng).addTo(mymap);
-    $(".alert").alert();
-});
-
-$("#location-select").click(function(){
-  if(marker != null){
-    $("#location-result").html(marker.getLatLng().toString());
-    marker.remove();
-    mymap.setView([49.4497, 11.0682], 12);
-  }
-});

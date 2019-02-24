@@ -73,7 +73,7 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark text-ligth" id="nav">
       <a class="navbar-brand" href="#">Wall finder</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler" id="toggle" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
 
@@ -85,9 +85,9 @@
           <?php
 
             if($loggedin){
-              echo '<li class="nav-item"><a class="nav-link" href="#">Submit</a></li>';
+              echo '<li class="nav-item"><a class="nav-link" href="#" id="nav-submit">Submit</a></li>';
             }else{
-              echo '<li class="nav-item"><a class="nav-link" href="#" data-toggle="modal" data-target="#registerModal">Submit</a></li>';
+              echo '<li class="nav-item"><a class="nav-link" href="#" data-toggle="modal" data-target="#register-modal" id="nav-submit">Submit</a></li>';
             }
 
            ?>
@@ -252,6 +252,16 @@
       </div>
     </div>
 
+    <?php
+
+      if($loggedin){
+        echo '<div class="alert alert-success mb-0" role="alert" id="submit-alert" style="display: none;">
+          Click the map at the location of the wall you would like to submit.
+        </div>';
+      }
+
+     ?>
+
     <div id="map" style="width: 100%; height: 500px;"></div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -261,5 +271,103 @@
     <script src="js/login.js" charset="utf-8"></script>
     <script src="js/register.js" charset="utf-8"></script>
     <script src="js/map.js" charset="utf-8"></script>
+
+    <?php
+
+      if($loggedin){
+        echo '
+        <script type="text/javascript">
+
+        function submitting(){
+          return $("#submit-alert").is(":visible");
+        }
+
+        $(window).on("resize", function () {
+          if(submitting()){
+            $("#map").height($(window).height() - $("#nav").height() - 42 - $("#submit-alert").height());
+          }else{
+            $("#map").height($(window).height() - $("#nav").height() - 16);
+          }
+          mymap.invalidateSize();
+
+        }).trigger("resize");
+
+
+        var marker;
+
+        function removeMarker(){
+          if(marker != null)
+            marker.remove();
+        }
+
+        mymap.on("click", function(e){
+            if(submitting()){
+              marker = L.marker(e.latlng).addTo(mymap).bindPopup(\'<form><div class="form-group"><label for="submit-title"><strong>Title</strong></label><input type="text" class="form-control" id="submit-title" placeholder="Enter title" maxlength="40"></div><div class="form-group"><label for="submit-description"><strong>Title</strong> <small>(Optional)</small></label><textarea class="form-control" id="submit-description" placeholder="Description" rows="3" maxlength="1000"></textarea></div></form><button class="btn btn-primary submit-submit">Submit</button>\', {
+                minWidth: 300
+              }).openPopup();
+              marker.on(\'popupclose\', function(e) {
+                $("#submit-alert").hide();
+                $("#map").height($(window).height() - $("#nav").height() - 16);
+                removeMarker();
+              });
+            }
+        });
+
+        $("#nav-submit").click(function(){
+          if(!submitting()){
+            $("#submit-alert").show();
+            $("#map").height($(window).height() - $("#nav").height() - 42 - $("#submit-alert").height());
+          }else{
+            $("#submit-alert").hide();
+            $("#map").height($(window).height() - $("#nav").height() - 16);
+            removeMarker();
+          }
+        });
+
+        $(document).on("click", ".submit-submit", function(){
+          var element = $(this);
+          var title = $(this).parent().find("#submit-title").val();
+          var description = $(this).parent().find("#submit-description").val();
+          $(this).html("Submitting...");
+          $.post("php/submit.php", {title: title, description: description, lat: marker.getLatLng().lat, lng: marker.getLatLng().lng}).done(function(data){
+            if(data != "Success"){
+              $("#login-fail-text").html(data);
+              $("#login-fail").modal("show");
+            }else{
+              location.reload();
+            }
+          }).fail(function(){
+            $("#login-fail-text").html("An error has occurred.");
+            $("#login-fail").modal("show");
+          }).always(function(){
+            element.html("Submit");
+          });
+        });
+
+        $("#toggle").click(function(){
+          setTimeout(function(){
+            if(submitting()){
+              $("#map").height($(window).height() - $("#nav").height() - 42 - $("#submit-alert").height());
+            }else{
+              $("#map").height($(window).height() - $("#nav").height() - 16);
+            }
+            mymap.invalidateSize();
+          }, 300);
+        });
+        </script>
+        ';
+      }else{
+        echo '
+        <script type="text/javascript">
+        $(window).on("resize", function () {
+            $("#map").height($(window).height() - $("#nav").height() - 16);
+          mymap.invalidateSize();
+        }).trigger("resize");
+        </script>
+        ';
+      }
+
+     ?>
+
   </body>
 </html>
