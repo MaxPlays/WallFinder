@@ -3,6 +3,7 @@
   session_start();
 
   include "sql.php";
+  include "config.php";
 
   if(isset($_POST["user"]) && isset($_POST["pass"]) && isset($_POST["stay"])){
 
@@ -31,7 +32,7 @@
           $stmt->execute();
 
           $cookie = $user . ':' . $token;
-          $mac = hash_hmac('sha256', $cookie, "test");
+          $mac = hash_hmac('sha256', $cookie, $secret_key);
           $cookie .= ':' . $mac;
           echo $cookie;
         }else{

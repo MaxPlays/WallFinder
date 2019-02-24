@@ -22,6 +22,8 @@
 
     <?php
 
+      include "php/config.php";
+
       session_start();
 
       $loggedin = FALSE;
@@ -33,7 +35,7 @@
         $cookie = isset($_COOKIE['rememberme']) ? $_COOKIE['rememberme'] : '';
         if ($cookie) {
           list ($username, $token, $mac) = explode(':', $cookie);
-          if (hash_equals(hash_hmac('sha256', $username . ':' . $token, "test"), $mac)) {
+          if (hash_equals(hash_hmac('sha256', $username . ':' . $token, $secret_key), $mac)) {
 
             include "php/sql.php";
 
