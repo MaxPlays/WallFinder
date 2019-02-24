@@ -23,6 +23,7 @@
     <?php
 
       include "php/config.php";
+      include "php/sql.php";
 
       session_start();
 
@@ -36,8 +37,6 @@
         if ($cookie) {
           list ($username, $token, $mac) = explode(':', $cookie);
           if (hash_equals(hash_hmac('sha256', $username . ':' . $token, $secret_key), $mac)) {
-
-            include "php/sql.php";
 
             $stmt = $conn->prepare("SELECT userid, user FROM users WHERE user=?;");
             $stmt->bind_param("s", $username);
@@ -67,6 +66,33 @@
             }
           }
         }
+      }
+
+      function str_lreplace($search, $replace, $subject)
+      {
+          $pos = strrpos($subject, $search);
+
+          if($pos !== false)
+          {
+              $subject = substr_replace($subject, $replace, $pos, strlen($search));
+          }
+
+          return $subject;
+      }
+
+      //$stmt = $conn->prepare("SELECT walls.wallid,walls.title,walls.description,walls.time,walls.lat,walls.lng,users.user FROM walls INNER JOIN users ON walls.userid = users.userid;");
+      $stmt = $conn->prepare("SELECT wallid, lat, lng FROM walls;");
+      $stmt->execute();
+      $stmt->store_result();
+      if($stmt->num_rows > 0){
+        //$stmt->bind_result($wallid, $title, $description, $time, $lat, $lng, $user);
+        $stmt->bind_result($wallid, $lat, $lng);
+        $result = "<script>var locations = [";
+        while($stmt->fetch()){
+          $result .= '{id: '.$wallid.', lat: '.$lat.', lng: '.$lng.'}, ';
+        }
+        $result = str_lreplace(", ", "", $result)."]</script>";
+        echo $result;
       }
 
      ?>
@@ -102,12 +128,8 @@
 
                 if($loggedin){
                   echo '
-
-                    <a class="dropdown-item" href="#">Your contributions</a>
-                    <div class="dropdown-divider"></div>
                     <div class="dropdown-item">Logged in as <strong>'.$user.'</strong></div>
                     <a class="dropdown-item" href="php/logout.php" id="login-logout">Logout</a>
-
                   ';
                 }else{
                   echo '<div class="container">
@@ -154,13 +176,9 @@
             </div>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">About</a>
+            <a class="nav-link" href="#" data-toggle="modal" data-target="#about-modal">About</a>
           </li>
         </ul>
-        <form class="form-inline my-2 my-lg-0">
-          <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form>
       </div>
     </nav>
 
@@ -252,6 +270,28 @@
       </div>
     </div>
 
+    <div class="modal fade" id="about-modal" tabindex="-1" role="dialog" aria-labelledby="about-modal-label" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="about-modal-label">About</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            This tool helps you find walls near you to practise wall-balls.
+            <br>
+            <br>
+            <strong>&copy; 2019 Maximilian Negedly</strong>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <?php
 
       if($loggedin){
@@ -306,10 +346,10 @@
                 minWidth: 300
               }).openPopup();
               marker.on(\'popupclose\', function(e) {
-                $("#submit-alert").hide();
-                $("#map").height($(window).height() - $("#nav").height() - 16);
                 removeMarker();
               });
+              $("#submit-alert").hide();
+              $("#map").height($(window).height() - $("#nav").height() - 16);
             }
         });
 
@@ -363,6 +403,13 @@
             $("#map").height($(window).height() - $("#nav").height() - 16);
           mymap.invalidateSize();
         }).trigger("resize");
+
+        $("#toggle").click(function(){
+          setTimeout(function(){
+            $("#map").height($(window).height() - $("#nav").height() - 16);
+            mymap.invalidateSize();
+          }, 300);
+        });
         </script>
         ';
       }

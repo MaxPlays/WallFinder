@@ -28,12 +28,10 @@
 
       $time = round(microtime(true) * 1000);
 
-      $votes = 0;
-
       include "sql.php";
 
-      $stmt = $conn->prepare("INSERT INTO walls(title, description, lat, lng, time, userid, votes) VALUES(?, ?, ?, ?, ?, ?, ?);");
-      $stmt->bind_param("ssddiii", $title, $description, $lat, $lng, $time, $id, $votes);
+      $stmt = $conn->prepare("INSERT INTO walls(title, description, lat, lng, time, userid) VALUES(?, ?, ?, ?, ?, ?);");
+      $stmt->bind_param("ssddii", $title, $description, $lat, $lng, $time, $id);
       $stmt->execute();
       $stmt->close();
 
