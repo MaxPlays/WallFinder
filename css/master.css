@@ -16,3 +16,9 @@ svg path,svg rect{
 img{
   cursor: pointer;
 }
+
+#wall-more{
+  color: #5c95f2;
+  cursor: pointer;
+  user-select: none;
+}

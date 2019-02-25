@@ -24,8 +24,10 @@
       die("The email you entered is too long");
     }
 
+    $u = strtolower($user);
+
     $stmt = $conn->prepare("SELECT LOWER(user) FROM users WHERE user=?;");
-    $stmt->bind_param("s", strtolower($user));
+    $stmt->bind_param("s", $u);
     $stmt->execute();
     $stmt->store_result();
     if($stmt->num_rows > 0){

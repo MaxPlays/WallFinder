@@ -11,8 +11,10 @@
     $pass = $_POST["pass"];
     $stay = $_POST["stay"];
 
+    $u = strtolower($user);
+
     $stmt = $conn->prepare("SELECT userid, user, password FROM users WHERE user=?;");
-    $stmt->bind_param("s", strtolower($user));
+    $stmt->bind_param("s", $u);
     $stmt->execute();
     $stmt->store_result();
 

@@ -2,7 +2,7 @@ var mymap = L.map('map', {
   preferCanvas: true
 }).setView([49.4497, 11.0682], 12);
 
-var popup = '<strong>Title: </strong><br><span id="wall-title">:title:</span><div class="mt-1"><strong>Description: </strong><br><span id="wall-description">:description:</span></div><div class="mt-3"><strong>Score: </strong><span id="wall-score">:score:</span></div><div class="mt-1"><strong>Vote: </strong><img class="wall-upvote" src="res/upvote.svg"></img> <img class="wall-downvote" src="res/downvote.svg"></img><span id="wall-id" style="display: none">:id:</span></div>';
+var popup = '<strong>Title: </strong><br><span id="wall-title">:title:</span><div class="mt-1"><strong>Description: </strong><br><span id="wall-description">:description:</span></div><div class="mt-3"><strong>Score: </strong><span id="wall-score">:score:</span></div><div class="mt-1"><strong>Vote: </strong><img class="wall-upvote" src="res/upvote.svg"></img> <img class="wall-downvote" src="res/downvote.svg"></img><br><span id="wall-more" data-id=":id:">More</span><span id="wall-id" style="display: none">:id:</span></div></div>';
 
 L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWF4cGxheXMiLCJhIjoiY2pydW16M2NhMHg4bTQzcHExZXo1NmZ6cyJ9.pP7oLqWGYW-H8qE3uD71XA', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -25,7 +25,6 @@ for (var i = 0; i < locations.length; i++) {
 
 function onLocationFound(e) {
     var radius = e.accuracy / 2;
-
     L.marker(e.latlng).addTo(mymap).bindPopup("Your location");
 }
 
@@ -46,7 +45,7 @@ $("body").on("DOMNodeInserted", ".wall", function(){
     var id = element.html();
     $.post("php/info.php", {id: id}).done(function(data){
       var v = JSON.parse(data);
-      element.html(popup.replace(":title:", v.title).replace(":description:", v.description).replace(":score:", v.score).replace(":id:", id));
+      element.html(popup.replace(":title:", v.title).replace(":description:", v.description.length > 300 ? v.description.substring(0, 300) + "..." : v.description).replace(":score:", v.score).replace(":id:", id).replace(":id:", id));
     }).fail(function(){
       element.html("Error loading info");
     }).always(function(){
@@ -85,4 +84,25 @@ $(document).on("click", ".wall-downvote", function(){
     $("#wall-score").html("Error");
     a = true;
   });
+});
+
+$(document).on("click", "#wall-more", function(){
+
+  var element = $(this);
+  var id = element.data("id");
+  $.post("php/info.php", {id: id}).done(function(data){
+    var v = JSON.parse(data);
+    $("#more-modal-label").html(v.title);
+    $("#more-description").html(v.description);
+    $("#more-score").html(v.score);
+
+    $("#more-modal").modal("show");
+  }).fail(function(){
+    $("#more-modal-label").html("Error");
+    $("#more-description").html("Error loading info.");
+    $("#more-score").html("Error");
+
+    $("#more-modal").modal("show");
+  });
+
 });

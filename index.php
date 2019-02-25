@@ -292,6 +292,27 @@
       </div>
     </div>
 
+    <div class="modal fade" id="more-modal" tabindex="-1" role="dialog" aria-labelledby="more-modal-label" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="more-modal-label"></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div id="more-description"></div>
+            <br>
+            <strong>Score: </strong><span id="more-score"></span>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <?php
 
       if($loggedin){
@@ -342,7 +363,7 @@
 
         mymap.on("click", function(e){
             if(submitting()){
-              marker = L.marker(e.latlng).addTo(mymap).bindPopup(\'<form><div class="form-group"><label for="submit-title"><strong>Title</strong></label><input type="text" class="form-control" id="submit-title" placeholder="Enter title" maxlength="40"></div><div class="form-group"><label for="submit-description"><strong>Title</strong> <small>(Optional)</small></label><textarea class="form-control" id="submit-description" placeholder="Description" rows="3" maxlength="1000"></textarea></div></form><button class="btn btn-primary submit-submit">Submit</button>\', {
+              marker = L.marker(e.latlng).addTo(mymap).bindPopup(\'<form><div class="form-group"><label for="submit-title"><strong>Title</strong></label><input type="text" class="form-control" id="submit-title" placeholder="Enter title" maxlength="40"></div><div class="form-group"><label for="submit-description"><strong>Description</strong> <small>(Optional)</small></label><textarea class="form-control" id="submit-description" placeholder="Description" rows="3" maxlength="1000"></textarea></div><div class="form-group"><label for="submit-image"><strong>Image</strong> <small>(Optional)</small></label><input type="file" class="form-control" id="submit-image"></input></div></form><button class="btn btn-primary submit-submit">Submit</button>\', {
                 minWidth: 300
               }).openPopup();
               marker.on(\'popupclose\', function(e) {
